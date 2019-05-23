@@ -1,0 +1,46 @@
+   created(){}内的代码
+    // console.log("第二次获取的接口数据==>", )
+
+    //获取拿到关于所以的ip章节里的具体信息
+//     this.$axios.get(url).then(res => {
+//       console.log(res.data);
+//       this.wash = res.data[0]._id;
+//       console.log("获取的数据：", this.wash);
+//       var add = this.wash;
+//       console.log("取单一章节的ip：", add);
+// //http://api.zhuishushenqi.com/atoc/568fef99adb27bfb4b3a58dc?view=chapters
+//       let urlx = "/api/atoc/" + add + "?view=chapters"
+//       console.log("取到的id目录为==>", urlx);
+//       //拿章节内容
+//         this.$axios.get(urlx).then(res => {
+//             console.log("id全部目录信息==》",res.data);
+//             this.tabs = res.data.chapters
+//             this.zhangjie = res.data.chapters.length
+//             console.log("当前书本章节总为：",this.zhangjie)
+//             console.log("tabs里id的全部目录==》", this.tabs)
+//             //通过link值来获取小说各章节的内容
+//                 //拼接好最后获取的内容章节ip
+// // http://chapterup.zhuishushenqi.com/chapter/http://vip.zhuishushenqi.com/chapter/5817f1161bb2ca566b0a5973?cv=1481275033588
+// ///api/chapter/http://vip.zhuishushenqi.com/chapter/5ac2212bb596a57be4f6ba29?cv=1542335522081
+//                 var urlvs = "/content/chapter/"
+//                 console.log("urlvs==>",urlvs)
+//                 var vslink = this.tabs
+//                 let index = Math.floor(Math.random() * vslink.length);
+//                 console.log('index ==>',index)
+//                 let newArr = vslink.slice(index,index + 1);
+//                 // // let newArr = vslink.parseInt(index,index + 1);
+//                 console.log('newArr ==>',newArr);
+//                 this.arr = newArr[0].link
+//                 console.log("arr==>",this.arr)
+//                 // // var arrid = parseInt(this.arr, 0)
+//                 // // console.log("parseInt==>", arrid) 
+//                 let dataArr = urlvs + this.arr
+//                 console.log("dataArr-->", dataArr)
+
+//                 // //start
+//                 // // 访问到了，但是部分章节
+//                 this.$axios.get(dataArr).then(res => {
+//                     console.log("小说章节一章：", res.data)
+//                 })
+//         });
+//     })

@@ -1,0 +1,219 @@
+<template>
+    <div class="login">
+        <!-- <h2>5464687</h2> -->
+        <div class="titleTop">
+            <van-nav-bar title="登录" left-text="返回" left-arrow @click-left="onClickLeft"/>
+            <van-tabs v-model="active" swipeable>
+                <van-tab title="账号密码登录">
+                    <div class="title-lbox">  
+                        <van-cell-group>
+                            <van-field v-model="userInfo.phone" required label="账号" placeholder="输入账号/手机号码"/>
+                            <van-field v-model="userInfo.pwd" required type="password" label="密码" placeholder="密码(8-16位)" />
+                            <van-button type="primary" class="button" @click="login">登录</van-button>
+                            <van-button class="button" @click="getPPT">注册</van-button>
+                        </van-cell-group>
+                    </div>
+                </van-tab>
+                <van-tab title="手机验证登录">
+                    <div class="title-lbox">  
+                        <van-cell-group>
+                            <van-field required label="手机号码" placeholder="输入号码" v-model="userInfo.phone"/>
+                            <van-field v-model="userInfo.validcode" required type="code" label="验证码" >
+                                <van-button slot="button" size="small" type="primary" @click="sendValidCode" :disabled="isDisabled">{{validCodeText}}</van-button>
+                            </van-field>
+                            <van-button type="primary" class="button" @click="login1">登录</van-button>
+                            <van-button class="button" @click="getPPT">注册</van-button>
+                        </van-cell-group>
+                  </div>
+                </van-tab>
+            </van-tabs>
+        </div>       
+    </div>
+</template>
+<script>
+import { NavBar, Tabbar, TabbarItem, Tabs ,Tab , Field, CellGroup, Button } from 'vant';
+import { Col, Row} from 'vant'
+import validForm from '../utils/validForm.js'
+import tip from '../utils/tip.js'
+import { setInterval, clearInterval } from 'timers';
+export default {
+    name: 'd-login',
+    data() {
+        return {
+            active: 0,
+            //随机验证码
+            validcode: '',
+            validCodeText: '发送验证码',
+            isDisabled: false,
+            userInfo: {
+					phone: '',
+                    pwd: '',
+                    validcode: ''
+			}
+        }
+    },
+    components: {
+        [NavBar.name]: NavBar,
+        [Tabbar.name]: Tabbar,
+        [TabbarItem.name]: TabbarItem,
+        [Tab.name]: Tab,
+        [Tabs.name]: Tabs,
+        [CellGroup.name]: CellGroup,
+        [Field.name]: Field,
+        [Button.name]: Button,
+        [Col.name]: Col,
+        [Row.name]: Row
+    },
+    methods: {
+        onClickLeft(){
+            this.$router.push({name: 'x-bookcase'})
+        },
+        getPPT(){
+            this.$router.push({name: 'x-reg'})
+        },
+        login() {
+
+				//验证手机号
+				if (!validForm.validPhone(this.userInfo.phone)) {
+
+					tip.dialogTip('手机号码不正确', true, this.userInfo, 'phone');
+
+				} else if (!validForm.validPwd(this.userInfo.pwd, 8, 16)) {
+					//验证密码
+
+					tip.dialogTip('密码只支持!@._字母数字组合', true, this.userInfo, 'pwd');
+
+				} else {
+
+					var userData = localStorage.getItem('users');
+
+					if (userData) {
+						//如果存在用户
+						this.users = JSON.parse(userData);
+
+						for (var i = 0; i < this.users.length; i++) {
+
+							if (this.users[i].phone == this.userInfo.phone) {
+								//如果手机号匹配, 验证密码
+
+								if (this.users[i].pwd == this.userInfo.pwd) {
+
+                                    //保存用户登录状态{userId: 手机号, loginStatus: true}
+
+									localStorage.setItem('userLogin', JSON.stringify({userId: this.userInfo.phone, loginStatus: true}));
+
+									return this.$router.push({name: 'x-bookcase'});
+									
+
+								} else {
+
+									return tip.dialogTip('手机号或者密码不正确');
+									
+								}
+
+							}
+
+						}
+
+						//不存该用户
+						tip.dialogTip('该用户不存在');
+                        // 跳转到个人中心
+
+                    this.$router.push({name: 'x-bookcase'})
+                    }
+                    
+				}
+
+        },
+        login1() {
+            //登录手机号+验证码
+            if (!validForm.validPhone(this.userInfo.phone)) {
+                tip.dialogTip('手机号码不正确', true, this.userInfo, 'phone');
+            }else if (!validForm.validEqual(this.userInfo.validcode, this.validcode) || this.userInfo.validcode.length < 6) {
+                tip.dialogTip('验证码不正确', true, this.userInfo, 'validcode')
+            }else{
+                //存储之前需要验证是否存在该用户
+                // for (var i = 0; i < this.users.length; i++) {
+                //     if (this.users[i].phone == this.userInfo.phone) {
+                //         tip.dialogTip('该手机号未注册，无效');
+                //         return;
+                //     }
+                // }
+                //写入本地存储 xxx
+                //this.xxx.push(xxx);
+                //var xxxData = JSON.stringify(this.xxx)
+                //localStorage.setItem('xxx', xxxData)
+
+                //调转到个人组件
+                this.$router.push({name: 'x-bookcase'})
+            }
+
+        },
+        sendValidCode() {
+            //发送验证码
+            if (!validForm.validPhone(this.userInfo.phone)) {
+                tip.dialogTip('手机号码错误', true, this.userInfo, 'phone')
+            }else{
+                this.isDisabled = true;
+                //60秒之后自动恢复
+                var time = 60;
+                this.validCodeText = time + 's秒重新发送';
+                var timer = setInterval(() => {
+                    if (time <= 0) {
+                        this.isDisabled = false;
+                        this.validCodeText = '发送验证码';
+                        //清除定时器
+                        clearInterval(timer);
+                        time = null;
+                    }else {
+                        this.validCodeText =  --time + 's秒重新发送';
+                    }
+                }, 1000)
+
+                //发送验证码
+                this.validcode = validForm.generateValidCode();
+                console.log(this.validcode)
+            }
+        }
+    } 
+}
+</script>
+<style scoped>
+.zer-tabs{
+    width: 100%;
+    margin-top: .9375rem;
+}
+.zer-tabs imput:nth-child(2){
+    float: right;
+}
+.zer-tabs .zer-box{
+    display: inline-block;
+    height: 40px;
+    width: 205px;
+    line-height: 40px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    font-size: 16px;
+    cursor: pointer;
+}
+.zer-box .rightlable{
+    float: right;
+}
+/* .zer-box:active{
+    color: #00c98d;
+    border-bottom: .04rem #00c98d solid;
+}  */
+.title-lbox{
+    margin: 1.5rem 2rem;
+}
+.button{
+    width: 18em;
+    margin: auto;
+    display: block;
+    margin-bottom: 10px;
+}
+.van-row{
+    font-size: 13px;
+    margin-top: 1rem;
+}
+</style>
